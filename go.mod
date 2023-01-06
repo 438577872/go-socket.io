@@ -1,4 +1,4 @@
-module github.com/karrrrrr/socketio
+module github.com/438577872/go-socket.io
 
 go 1.19
 
