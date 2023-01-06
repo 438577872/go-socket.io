@@ -1,4 +1,4 @@
-package ws
+package socketio
 
 import (
 	"encoding/json"
@@ -206,7 +206,6 @@ func (this *SocketServer) ws(c *gin.Context) {
 	if err != nil {
 		return
 	}
-	// init 握手阶段
 
 	this.helloCallback(conn)
 	this.parseRoomNamespace(conn)
@@ -214,8 +213,7 @@ func (this *SocketServer) ws(c *gin.Context) {
 
 	for {
 		message, err := this.parseMessage(conn)
-		//marshal, _ := json.Marshal(message)
-		//log.Printf("%s\n", marshal)
+
 		if message.Code == PingIn {
 			continue
 		}

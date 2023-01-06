@@ -1,4 +1,4 @@
-package ws
+package socketio
 
 import "github.com/gorilla/websocket"
 

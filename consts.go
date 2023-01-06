@@ -1,4 +1,4 @@
-package ws
+package socketio
 
 const (
 	TextType    = 42  // 纯文本类型
