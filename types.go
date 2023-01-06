@@ -7,7 +7,7 @@ type Room struct {
 }
 type ConnectPool map[*websocket.Conn]bool
 
-type SocketIOConnection struct {
+type Connection struct {
 	Websocket *websocket.Conn
 	Namespace string
 	mapping   map[any]bool
@@ -19,14 +19,18 @@ type HelloResponse struct {
 	PingTimeout  int      `json:"pingTimeout"`
 	PingInterval int      `json:"pingInterval"`
 }
+
 type RoomType = map[string]SocketSet
-type SocketSet = map[*SocketIOConnection]bool
+
+type SocketSet = map[*Connection]bool
+
 type SocketServer struct {
 	eventHandler map[string]map[string]HandleFunction
 	namespaceMap map[string]RoomType
 }
 
-type HandleFunction = func(conn *SocketIOConnection, data []byte)
+type HandleFunction = func(conn *Connection, data []byte)
+
 type Message struct {
 	Code      int
 	EventName string

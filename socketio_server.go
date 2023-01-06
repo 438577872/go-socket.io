@@ -31,7 +31,7 @@ func (this *SocketServer) On(namespace, eventName string, fn HandleFunction) {
 	this.eventHandler[namespace][eventName] = fn
 }
 
-func (this *SocketServer) JoinRoom(ws *SocketIOConnection, namespace, roomId string) {
+func (this *SocketServer) JoinRoom(ws *Connection, namespace, roomId string) {
 	_, ok := this.namespaceMap[namespace]
 	if !ok {
 		this.namespaceMap[namespace] = make(RoomType)
@@ -45,9 +45,9 @@ func (this *SocketServer) JoinRoom(ws *SocketIOConnection, namespace, roomId str
 }
 
 // 紫砂了
-func (this *SocketServer) destroy(ws *SocketIOConnection) {
+func (this *SocketServer) destroy(ws *Connection) {
 	for t := range ws.mapping {
-		m := t.(*map[*SocketIOConnection]bool)
+		m := t.(*map[*Connection]bool)
 		delete(*m, ws)
 	}
 }
@@ -108,7 +108,7 @@ func (this *SocketServer) generateName() string {
 	return uuid.New().String()
 }
 
-func (this *SocketServer) helloCallback(connection *SocketIOConnection) string {
+func (this *SocketServer) helloCallback(connection *Connection) string {
 	name := this.generateName()
 	var hello = HelloResponse{
 		Sid:          name,
@@ -121,7 +121,7 @@ func (this *SocketServer) helloCallback(connection *SocketIOConnection) string {
 	return name
 }
 
-func (this *SocketServer) parseRoomNamespace(connection *SocketIOConnection) {
+func (this *SocketServer) parseRoomNamespace(connection *Connection) {
 	_, data, _ := connection.Websocket.ReadMessage()
 	connection.Namespace = "/"
 	if n := len(data); n > 2 {
@@ -135,7 +135,7 @@ func escape(data []byte) []byte {
 	return data[1 : n-1]
 }
 
-func (this *SocketServer) parseMessage(connection *SocketIOConnection) (msg Message, err error) {
+func (this *SocketServer) parseMessage(connection *Connection) (msg Message, err error) {
 	_, data, err := connection.Websocket.ReadMessage()
 	if err != nil {
 		return
@@ -192,9 +192,9 @@ func (this *SocketServer) parseMessage(connection *SocketIOConnection) (msg Mess
 
 }
 
-func (this *SocketServer) getConnection(c *gin.Context) (*SocketIOConnection, error) {
+func (this *SocketServer) getConnection(c *gin.Context) (*Connection, error) {
 	upgrade, err := upgrader.Upgrade(c.Writer, c.Request, nil)
-	return &SocketIOConnection{
+	return &Connection{
 		Websocket: upgrade,
 		mapping:   map[any]bool{},
 	}, err
@@ -233,10 +233,11 @@ func (this *SocketServer) Install(app *gin.Engine) {
 	app.GET("/socket.io/", this.ws)
 	go func() {
 		for {
+			var data = []byte{'0' + PingBack}
 			time.Sleep(20 * time.Second)
 			for _, s := range this.namespaceMap {
 				for conn, _ := range s[""] {
-					conn.Websocket.WriteMessage(1, []byte("2"))
+					conn.Websocket.WriteMessage(1, data)
 				}
 			}
 		}
