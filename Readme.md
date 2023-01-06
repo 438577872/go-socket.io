@@ -21,9 +21,13 @@ EmitString(namespace, eventName, roomId, stringData)
 EmitBinary(namespace, eventName, roomId, byteData)
 ```
 ### 使用方法
-> 创建一个gin工程, 调用NewSocketServer, 把gin注册到server即可
-
-> server.On注册相关事件
+> 创建一个gin工程, 调用NewSocketServer, 把gin注册到server即可, 代码如下
+```go
+engine := gin.Default()
+server := ws.NewSocketServer()
+server.Install(engine)
+```
+> server.On注册相关事件,代码如下
 ```go
 func main() {
 	engine := gin.Default()
